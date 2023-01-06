@@ -1,54 +1,74 @@
 <script>
+	import _ from 'lodash'
 	import { browser } from '$app/environment'
-	import {log} from '$lib/utils.js'
+	import {assert, log} from '$lib/utils.js'
 
-	const m = {}
-		m['']     = ['a','b']
-		m['a']    = ['a1', 'a2', 'a3']
-		m['a/a1'] = ['a11', 'a12']
-		m['a/a2'] = ['a21', 'a22']
-		m['a/a3'] = ['a31', 'a32']
-		m['b']    = ['b1', 'b2']
-		m['b/b1'] = ['b11', 'b12']
-		m['b/b2'] = ['b21', 'b22']
-	const menu = m
-	
+	const menu = {
+		a: {
+			a1: {
+				a11: 'a11.jpg',
+				a12: 'a12.jpg'
+			},	
+			a2: {
+				a21: 'a21.jpg',
+				a22: 'a22.jpg'
+			},
+			a3: {
+				a31: 'a31.jpg',
+				a32: 'a32.jpg'
+			}
+		},
+		b: {
+			b1: {
+				b11: 'b11.jpg',
+				b12: 'b12.jpg'
+			},
+			b2: {
+				b21: 'b21.jpg',
+				b22: 'b22.jpg'
+			},
+			b3: {
+				b31: 'b31.jpg',
+				b32: 'b32.jpg'
+			}
+		}
+	}
+
 	let url =''
 	let path = ''
-	// let arr=[]
 
-	$: {
-		if (browser) {
-			url = window.location.href
-		}
+	$: if (browser) url = window.location.href
+	$: path = url.slice(21)
+
+	const clean = (a,b) => a.endsWith('/') || b.startsWith('/') ?  a + b : a + '/' + b
+
+	function makeItems(s) {
+		if (s=='/') return []
+		return _.drop(s.split('/'))
+	}
+	assert('mI1',makeItems('/'),     [] ) 
+	assert('mI2',makeItems('/a'),    ['a'] ) 
+	assert('mI3',makeItems('/a/a1'), ['a','a1'] ) 
+	
+	function expand(path) {
+		let curr = menu
+		for (const item of makeItems(path)) curr = curr[item]
+		return _.keys(curr)
 	}	
-	$: {
-		log(url)
-		path = url.slice(22)
-		log({path})
-		log({menu})
-	}
-
-	$: arr = menu[path] 
-
-	function clean(a,b) {
-		if (a.endsWith('/') || b.startsWith('/')) {
-			return a + b
-		} else {
-			return a + '/' + b
-		}
-	}
+	assert('A1',''.split('/'), [''] ) 
+	assert('A2','/a'.split('/'), ['','a'] ) 
+	assert('B',expand('/'), ['a','b'])
+	assert('C',expand('/a'), ['a1','a2', 'a3'])
+	assert('D',expand('/a/a1'), ['a11','a12'])
 
 </script>
 
 URL: {url} <br>
 PATH: x{path}x <br>
-ARR: {arr}
 
-{#each arr as item}
-	{@const name = clean(url,item)}
-	<p>
-		<button on:click={window.location.href = name}>{item}</button>
-	</p>
+{#each expand(path) as key}
+	{@const name = clean(url,key)}
+	{#if !key.endsWith('.jpg')}
+		<p><button on:click={window.location.href = name}>{name}</button></p>
+	{/if}
 {/each}
-
