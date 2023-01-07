@@ -1,9 +1,9 @@
 <script>
 	import _ from 'lodash'
-	import { browser } from '$app/environment'
+	// import { browser } from '$app/environment'
 	import {goto} from '$app/navigation'
 	import {assert, log} from '$lib/utils.js'
-	import {stack} from '$lib/stores.js'
+	// import {stack} from '$lib/stores.js'
 	import {page} from '$app/stores'
 
 	export const prerender = true
@@ -39,21 +39,6 @@
 		}
 	}
 
-	// let path = ''
-
-	// $: if (browser) 
-	// $: href = browser ? $page.url.href : ""
-	// $: url = href //$stack.join('/')
-	// $: path = href.slice(21)
-	// $: path = $page.url.pathname //href.slice(21)
-	// $: log($page.url.pathname)
-
-	// const clean = (a,b) => {
-	// 	return a + '/' + b
-	// 	// log('clean',a,b)
-	// 	// return a.endsWith('/') || b.startsWith('/') ?  a + b : a + '/' + b
-	// }
-
 	function makeItems(s) {
 		if (s=='/') return []
 		return _.drop(s.split('/'))
@@ -76,31 +61,13 @@
 
 	$: expanded = expand($page.url.pathname)
 
-	// function push(item) {
-		// $stack = _.concat($stack,item)
-		// log('push',$stack)
-	// 	goto(item)
-	// }
-
 </script>
 
-<!-- url: {url} <br> -->
-<!-- href: {href} <br> -->
-<!-- expand: {expanded}<br>
-page: {$page.params.slug} <br>
-stack: {$stack} <br> -->
-
 {#each expanded as key}
-	<!-- {@const name = href.slice(href.lastIndexOf("/"))} -->
 	{@const name = $page.params.slug + '/' + key} 
-	<!-- href.slice(href.lastIndexOf("/"))} -->
 	{#if !key.endsWith('.jpg')}
-		<!-- <a href = {clean(name,key)}>{clean(name,key)}</a><br> -->
 		<p><button on:click={()=>goto(name)}>{name}</button></p>
-		<!-- <p><button on:click={window.location.href = clean(name,key)}>{clean(name,key)}</button></p> -->
-		<!-- goto problematiskt, fler som har problem. Den är smooth, men uppdaterar inte fönstret. -->
 	{/if}
 {/each}
 
-
-<p><button on:click={()=>$stack = _.concat($stack,1)}>{$stack.length}</button></p>
+<!-- <p><button on:click={()=>$stack = _.concat($stack,1)}>{$stack.length}</button></p> -->
