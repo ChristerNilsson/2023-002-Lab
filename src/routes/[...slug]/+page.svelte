@@ -44,10 +44,15 @@
 	// $: if (browser) 
 	$: href = browser ? $page.url.href : ""
 	// $: url = href //$stack.join('/')
-	$: path = href.slice(21)
+	// $: path = href.slice(21)
+	$: path = $page.url.pathname //href.slice(21)
 	$: log($page.url.pathname)
 
-	const clean = (a,b) => a.endsWith('/') || b.startsWith('/') ?  a + b : a + '/' + b
+	const clean = (a,b) => {
+		return a + '/' + b
+		// log('clean',a,b)
+		// return a.endsWith('/') || b.startsWith('/') ?  a + b : a + '/' + b
+	}
 
 	function makeItems(s) {
 		if (s=='/') return []
@@ -85,7 +90,9 @@ page: {$page.params.slug} <br>
 stack: {$stack} <br>
 
 {#each expanded as key}
-	{@const name = href.slice(href.lastIndexOf("/"))}
+	<!-- {@const name = href.slice(href.lastIndexOf("/"))} -->
+	{@const name = $page.params.slug} 
+	<!-- href.slice(href.lastIndexOf("/"))} -->
 	{#if !key.endsWith('.jpg')}
 		<!-- <a href = {clean(name,key)}>{clean(name,key)}</a><br> -->
 		<p><button on:click={()=>goto(clean(name,key))}>{clean(name,key)}</button></p>
