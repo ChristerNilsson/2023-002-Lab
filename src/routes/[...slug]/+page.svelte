@@ -1,14 +1,12 @@
 <script>
 	import _ from 'lodash'
-	// import { browser } from '$app/environment'
 	import {goto} from '$app/navigation'
 	import {assert, log} from '$lib/utils.js'
-	// import {stack} from '$lib/stores.js'
 	import {page} from '$app/stores'
-
+	import menu from '$lib/bilder.json'
 	export const prerender = true
 
-	const menu = {
+	const menu_xxx = {
 		a: {
 			a1: {
 				a11: 'a11.jpg',
@@ -50,24 +48,46 @@
 	function expand(path) {
 		log(path)
 		let curr = menu
-		for (const item of makeItems(path)) curr = curr[item]
+		for (const item of makeItems(path)) {
+			log(item)
+			curr = curr[item]
+		}
+		log('expand',path,_.keys(curr))
 		return _.keys(curr)
 	}	
-	assert('A1',''.split('/'), [''] ) 
-	assert('A2','/a'.split('/'), ['','a'] ) 
-	assert('B',expand('/'), ['a','b'])
-	assert('C',expand('/a'), ['a1','a2', 'a3'])
-	assert('D',expand('/a/a1'), ['a11','a12'])
+	// assert('A1',''.split('/'), [''] ) 
+	// assert('A2','/a'.split('/'), ['','a'] ) 
+	// assert('B',expand('/'), ['a','b'])
+	// assert('C',expand('/a'), ['a1','a2', 'a3'])
+	// assert('D',expand('/a/a1'), ['a11','a12'])
 
-	$: expanded = expand($page.url.pathname)
+	function clean(a,b) {
+		if (!a.startsWith('/')) a = '/' + a
+		if (a.endsWith('/') || b.startsWith('/')) {
+			return a + b
+		} else {
+			return a + '/' + b
+		}
+	}
+
+	$: url = $page.url
+	$: params = $page.params
+	$: log(params)
+	$: slug = params.slug
+	$: pathname = decodeURI(url.pathname)
+	$: expanded = expand(pathname)
+	$: log({expanded})
 
 </script>
 
 {#each expanded as key}
-	{@const name = $page.params.slug + '/' + key} 
-	{#if !key.endsWith('.jpg')}
-		<p><button on:click={()=>goto(name)}>{name}</button></p>
-	{/if}
+	{@const name = clean(pathname,key)} 
+	<button on:click={()=>goto(name)}>{key}</button><br>
 {/each}
 
-<!-- <p><button on:click={()=>$stack = _.concat($stack,1)}>{$stack.length}</button></p> -->
+<style>
+	button {
+		width:650px;
+		text-align:left
+	}
+</style>
