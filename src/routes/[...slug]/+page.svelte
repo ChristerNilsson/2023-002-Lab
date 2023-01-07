@@ -1,7 +1,12 @@
 <script>
 	import _ from 'lodash'
 	import { browser } from '$app/environment'
+	import {goto} from '$app/navigation'
 	import {assert, log} from '$lib/utils.js'
+	import {stack} from '$lib/stores.js'
+	import {page} from '$app/stores'
+
+	export const prerender = true
 
 	const menu = {
 		a: {
@@ -34,11 +39,13 @@
 		}
 	}
 
-	let url =''
-	let path = ''
+	// let path = ''
 
-	$: if (browser) url = window.location.href
+	// $: if (browser) 
+	$: href = browser ? $page.url.href : ""
+	$: url = href //$stack.join('/')
 	$: path = url.slice(21)
+	$: log($page.url.pathname)
 
 	const clean = (a,b) => a.endsWith('/') || b.startsWith('/') ?  a + b : a + '/' + b
 
@@ -61,14 +68,30 @@
 	assert('C',expand('/a'), ['a1','a2', 'a3'])
 	assert('D',expand('/a/a1'), ['a11','a12'])
 
+	$: expanded = expand(path)
+
+	function push(item) {
+		$stack = _.concat($stack,item)
+		log('push',$stack)
+		goto(_.last($stack))
+	}
+
 </script>
 
-URL: {url} <br>
-PATH: x{path}x <br>
+url: {url} <br>
+href: {href} <br>
+expand: {expanded}<br>
+page: {$page.params.slug} <br>
 
-{#each expand(path) as key}
-	{@const name = clean(url,key)}
+{#each expanded as key}
+	{@const name = url.slice(url.lastIndexOf("/"))}
 	{#if !key.endsWith('.jpg')}
-		<p><button on:click={window.location.href = name}>{name}</button></p>
+		<!-- <a href = {clean(name,key)}>{clean(name,key)}</a><br> -->
+		<p><button on:click={()=>push(clean(name,key))}>{clean(name,key)}</button></p>
+		<!-- <p><button on:click={window.location.href = clean(name,key)}>{clean(name,key)}</button></p> -->
+		<!-- goto problematiskt, fler som har problem. Den är smooth, men uppdaterar inte fönstret. -->
 	{/if}
 {/each}
+
+
+<!-- <p><button on:click={()=>push(1)}>{$stack.length}</button></p> -->
