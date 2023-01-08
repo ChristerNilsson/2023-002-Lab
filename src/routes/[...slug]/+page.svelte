@@ -3,14 +3,25 @@
 	import {goto} from '$app/navigation'
 	import {page} from '$app/stores'
 	import menu from '$lib/bilder.json'
-	import {clean,getChildren} from '$lib/utils.js'
+	import {clean,getChildren,getLeaves,log,traverse} from '$lib/utils.js'
 
 	export const prerender = true
 
 	$: url = $page.url
 	$: pathname = decodeURI(url.pathname.slice(1)) // ta bort inledande /. Kan finnas %20 och andra tecken.
 	$: children = getChildren(menu,pathname) // De omedelbara barnen till en nod.
+	$: leaves = getLeaves(menu,pathname)
+	$: log(leaves)
 
+	$: pathnames = leaves.filter((leaf => leaf.includes(sokruta)))
+	// for (const pathname in leaves) {
+	// 	if (pathname.includes(sokruta)) pathnames.push(pathname)
+	// }
+	// log(pathnames)
+
+	// sök igenom leaves efter träff på sokrutan
+
+	const sokruta = 'Numa'
 </script>
 
 {#each children as key}
@@ -18,4 +29,16 @@
 	<button on:click={()=>goto(name)}>{key}</button><br>
 {/each}
 
+{sokruta} {pathnames.length} <br>
+{#each pathnames as pn} 
+	{#if pn.endsWith('.jpg')}
+		{#if pn.includes(sokruta)}
+			<!-- {@const data = traverse(menu,pathname)} -->
+			{pn} 
+			<!-- {data} <br> -->
+			<!-- {data[5]} -->
+			<!-- <img src="/small/{data[5]}.jpg" alt=""> -->
+		{/if} <br>
+	{/if}
+{/each}
 <style> button {width:650px; text-align:left}</style>
