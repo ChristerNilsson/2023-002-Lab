@@ -1,7 +1,9 @@
 import _ from 'lodash'
-import menu from '$lib/menu.json'
 
 export const log = console.log
+
+
+// $: log(menu)
 
 export function assert (msg,a,b) {
 	if (!_.isEqual(a,b)) {
@@ -22,9 +24,9 @@ export function getChildren(curr,path) {
 	for (const item of splitPath(path)) curr = curr[item]
 	return _.keys(curr)
 }
-assert('B',getChildren(menu,''), ['a','b'])
-assert('C',getChildren(menu,'a'), ['a1', 'a2', 'a3'])
-assert('D',getChildren(menu,'a/a1'), ['a11','a12'])
+// assert('B',getChildren(menu,''), ['a','b'])
+// assert('C',getChildren(menu,'a'), ['a1', 'a2', 'a3'])
+// assert('D',getChildren(menu,'a/a1'), ['a11','a12'])
 
 export function traverse(curr,path) {
 	for (const item of splitPath(path)) curr = curr[item]
@@ -35,11 +37,17 @@ export function traverse(curr,path) {
 // 	curr = traverse(curr,path)
 // }
 
-export function getLeaves(curr,path) {
+export function getLeaves(curr,path,n=10) {
 	const res = []
 	function recurse(curr,path) {
 		if (path.toLowerCase().endsWith('.jpg')) {
-			res.push(path)
+			// if (res.length<n) {
+				if (path.startsWith('/')) {
+					res.push(path.slice(1))
+				} else {
+					res.push(path)
+				}
+			// }
 		} else {
 			for (const key of _.keys(curr)) {
 				recurse(curr[key],path + '/' + key)
@@ -48,6 +56,7 @@ export function getLeaves(curr,path) {
 	}
 	log(path)
 	recurse(traverse(curr,path),path)
+	// if (res.length > n) res = res.slice(0,n)
 	return res
 }
 
