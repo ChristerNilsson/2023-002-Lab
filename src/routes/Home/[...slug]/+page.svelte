@@ -2,40 +2,61 @@
 	import _ from 'lodash'
 	import {goto} from '$app/navigation'
 	import {page} from '$app/stores'
-	import {clean,getChildren,getLeaves,log,traverse} from '$lib/utils.js'
+	import {clean,getChildren,selectImages,log,fetchSubTree} from '$lib/utils.js'
+	import {selection} from '$lib/stores.js'
 
 	export const prerender = true
 
-	let menu = {}
+	let bilder = {}  // innehåll json-trädet
+
 	async function fetchData() {
-		const res = await fetch('../src/lib/bilder.json')
+		const res = await fetch('/json/bilder.json')
+		// const res = await fetch('/json/bilder.json')
 		const data = await res.json()
 		if (res.ok) {
-			menu = data
+			bilder = data
 			return data
 		} else {
 			throw new Error(data)
 		}
 	}
 
+	// let sokruta = $page.url.searchParams.get('s')
+	let sokruta = 'Numa'
+	$: log(sokruta)
+
+	// $: $page.url.searchParams.set('s', sokruta)
+
+	// $: goto($page.url.href + $page.url.searchParams.toString())
+
 	$: url = $page.url
 	$: pathname = decodeURI(url.pathname.split('/').slice(2).join('/')) // ta bort inledande /. Kan finnas %20 och andra tecken.
-	$: children = getChildren(menu,pathname) // De omedelbara barnen till en nod.
-	$: leaves = getLeaves(menu,pathname)
+	$: subtree = fetchSubTree(bilder,pathname)
+	$: children = getChildren(bilder,pathname) // De omedelbara barnen till en nod.
+	// $: selection = selectImages(bilder,pathname,sokruta)
+	$: $selection = selectImages(subtree,pathname,sokruta).slice(0,10)
 
+	// $: log($page.url)
+	// $: log($page.url.searchParams.get('s'))
+
+	// $: log($page)
 	// $: log({children})
 	// $: log({pathname})
+	$: log({subtree})
 	// $: log({url})
 	// $:log(url.pathname.split('/').slice(2))
-	// $: log(leaves)
+	$: log({$selection})
 
-	$: pathnames = leaves.filter((leaf => leaf.includes(sokruta))).slice(0,100)
+	// $: pathnames = selection.slice(0,10) //.filter((leaf => leaf.includes(sokruta))).slice(0,100)
 
-	let sokruta = 'Numa'
 </script>
 
 <input type="text" bind:value={sokruta}>
-{pathnames.length} <br>
+
+<button on:click={()=>goto($page.url.origin + $page.url.pathname + '?s=' + sokruta)}>Share</button><br>
+<button on:click={()=>goto('/play')}>Play</button><br>
+
+{$selection.length} <br>
 
 {#await fetchData()}
 	<p>loading</p>
@@ -46,15 +67,11 @@
 		<button on:click={()=>goto('/Home' + name)}>{key}</button><br>
 	{/each}
 
-	{#each pathnames as pn}
-		{pn}
-		{#if pn.endsWith('.jpg')}
-			{#if pn.includes(sokruta)}
-				{@const data = traverse(menu, pn)}
-				{@const href = "/small/" + data[5] + '.jpg' }
-				<img src={href} alt=""> 
-			{/if} <br>
-		{/if}
+	{#each $selection as data}
+		{@const path = data[6]}
+		{@const md5 = data[5]}
+		{@const href = "/small/" + md5 + '.jpg' }
+		<img src={href} alt="">
 	{/each}
 
 {:catch error}

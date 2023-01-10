@@ -2,7 +2,6 @@ import _ from 'lodash'
 
 export const log = console.log
 
-
 // $: log(menu)
 
 export function assert (msg,a,b) {
@@ -21,6 +20,7 @@ assert('mI2',splitPath('a'),    ['a'] )
 assert('mI3',splitPath('a/a1'), ['a','a1'] )
 
 export function getChildren(curr,path) {
+	if (_.size(curr)==0) return []
 	for (const item of splitPath(path)) curr = curr[item]
 	return _.keys(curr)
 }
@@ -28,37 +28,78 @@ export function getChildren(curr,path) {
 // assert('C',getChildren(menu,'a'), ['a1', 'a2', 'a3'])
 // assert('D',getChildren(menu,'a/a1'), ['a11','a12'])
 
-export function traverse(curr,path) {
+// Söker upp en bild från roten, givet path
+export function fetchSubTree(curr,path) {
+	// log('fetchSubTree in',{curr},{path})
+	if (_.size(curr)==0) return curr
 	for (const item of splitPath(path)) curr = curr[item]
+	// log('fetchSubTree out',{curr})
 	return curr
 }
 
 // export function getObject(curr,path) {
-// 	curr = traverse(curr,path)
+// 	curr = fetchSubTree(curr,path)
 // }
 
-export function getLeaves(curr,path,n=10) {
-	const res = []
-	function recurse(curr,path) {
+// Hämtar det tillplattade subträdet. 
+// Returnerar en lista av [sw,sh,bs,bw,md5,path,key]
+// ej filtrerat på söksträngen
+export function selectImages(curr,path,sokruta) {
+	const selected = []
+	// const folders = []
+	function recurse(curr,path,key) {
+		// log('recurse',{curr,path,key})
 		if (path.toLowerCase().endsWith('.jpg')) {
-			// if (res.length<n) {
+			if (path.includes(sokruta)) {
+				// log({curr})
 				if (path.startsWith('/')) {
-					res.push(path.slice(1))
+					selected.push(curr.concat(path.slice(1)))
 				} else {
-					res.push(path)
+					selected.push(curr.concat(path))
 				}
-			// }
+			}
 		} else {
-			for (const key of _.keys(curr)) {
-				recurse(curr[key],path + '/' + key)
+			for (const k of _.keys(curr)) {
+				// if (!k.toLowerCase().endsWith('.jpg')) log(path + '/' + k)
+				recurse(curr[k],path + '/' + k,k)
 			}
 		}
 	}
+	// log('folders',folders)
 	log(path)
-	recurse(traverse(curr,path),path)
-	// if (res.length > n) res = res.slice(0,n)
-	return res
+	recurse(curr,path)
+	log({selected})
+	return selected
 }
+
+// export function selectImages(curr,path,sokruta) {
+// 	const selected = []
+// 	// const folders = []
+// 	function recurse(curr,path,key) {
+// 		log('recurse',{curr,path,key})
+// 		if (path.toLowerCase().endsWith('.jpg')) {
+// 			// if (path.toLowerCase().endsWith('.jpg') && path.includes(sokruta)) {
+// 				// const data = curr[key]
+// 			// log({data})
+// 			if (path.startsWith('/')) {
+// 				selected.push(path.slice(1))
+// 			} else {
+// 				selected.push(path)
+// 			}
+// 		} else {
+// 			for (const k of _.keys(curr)) {
+// 				// if (!k.toLowerCase().endsWith('.jpg')) log(path + '/' + k)
+// 				recurse(curr[key],path + '/' + k,k)
+// 			}
+// 		}
+// 	}
+// 	// log('folders',folders)
+// 	log(path)
+// 	recurse(fetchSubTree(curr,path),path,"")
+// 	log({selected})
+// 	return selected
+// }
+
 
 export function clean(a,b) {
 	if (!a.startsWith('/')) a = '/' + a

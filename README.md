@@ -45,3 +45,37 @@ Ny kod:
 +		code = code.replaceAll('\t',' ')
 9		if (yamlExtension.test(id)) {
 ```
+
+### Share
+
+Problem med oändlig rekursion här om man låter input styra adressfältet direkt.  
+Därför inför jag knappen Share. Se även URLSearchParams. `sokruta` måste läggas till påslutet vid varje katalogval.
+
+```c
+<button on:click={()=>goto($page.url.origin + $page.url.pathname + '?s=' + sokruta)}>Share</button><br>
+```
+
+### tanhauhau (svelte #3 contributor) eller lihautan (youtube)
+
+https://github.com/tanhauhau/sveet
+
+### axios och jsyaml
+
+Verkar fungera för att läsa in yamlfiler.
+
+```c
+import axios from 'axios'
+import jsyaml from 'js-yaml'
+
+axios.get('/json/menu.yaml').then((response) => {jsyaml.load(response.data.replaceAll('\t',' '))})
+```
+
+### yaml vs json
+
+Uppmätt med pyyaml.  
+Gick dessutom inte att få listan på en rad i filen. [475,680,1234567,2048,1923,"asdsadasxasxasdasxasdasasasdasd"]
+
+värde|json|yaml|faktor
+-|-|-|-
+MB|4.6|6.8|1.5
+sek|0.2|18|90
