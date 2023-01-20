@@ -1,11 +1,12 @@
 <script>
 	import _ from 'lodash'
+	import countapi from 'countapi-js'
 	import {goto} from '$app/navigation'
 	import {page} from '$app/stores'
 	import {clean,getChildren,selectImages,log,fetchSubTree} from '$lib/utils.js'
 	import {selection} from '$lib/stores.js'
 
-	export const prerender = true
+	// export const prerender = true
 
 	let bilder = {}  // innehåll json-trädet
 
@@ -48,6 +49,10 @@
 	$: log({$selection})
 
 	// $: pathnames = selection.slice(0,10) //.filter((leaf => leaf.includes(sokruta))).slice(0,100)
+	
+
+	countapi.visits('bildbanken2.com','mainpage').then((result) => {console.log('countapi',result.value)})
+	//https://api.countapi.xyz/hit/bildbanken2.com/click
 
 </script>
 

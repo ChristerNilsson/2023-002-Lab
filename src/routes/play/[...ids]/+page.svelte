@@ -4,6 +4,7 @@
 	import { fade } from 'svelte/transition'
 	import _ from 'lodash'
 
+	const SIZE = 'large'
 	let delay = 5 // s
 	const DURATION = 1000 // ms
 	const GAP = 30
@@ -12,11 +13,11 @@
 
 	$: n = $selection.length
 	$: data = $selection[i]
-	$: bw = data[3-3]
-	$: bh = data[4-3]
+	$: bw = data[3] // -3
+	$: bh = data[4] // -3
 	$: md5 = data[5]
 	$: path = data[6]
-	$: href = '/small/' + md5 + '.jpg'
+	$: href = '/' + SIZE + '/' + md5 + '.jpg'
 	$: key = _.last(path.split('/')).replaceAll('_',' ').replace('.jpg','').replace('Vy-','')
 
 	const f = () => {

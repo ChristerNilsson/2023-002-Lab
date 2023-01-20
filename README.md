@@ -73,9 +73,30 @@ axios.get('/json/menu.yaml').then((response) => {jsyaml.load(response.data.repla
 ### yaml vs json
 
 Uppmätt med pyyaml.  
-Gick dessutom inte att få listan på en rad i filen. [475,680,1234567,2048,1923,"asdsadasxasxasdasxasdasasasdasd"]
+Gick dessutom inte att få listan på en rad i filen. 
+```
+[475,680,1234567,2048,1923,"asdsadasxasxasdasxasdasasasdasd"]
+```
+lades ut som
+```
+- 475
+- 680
+- 1234567
+- 2048
+- 1923
+- asdsadasxasxasdasxasdasasasdasd
+```
 
 värde|json|yaml|faktor
 -|-|-|-
 MB|4.6|6.8|1.5
 sek|0.2|18|90
+
+### countapi.xyz
+
+Kanske mera tillförlitligt.
+
+### Har fått igång python -m http.server nu
+
+index.html skapades inte. Jag kommenterade ut alla `export const prerender = true`.
+`npm run build` skapade nu index.html!
